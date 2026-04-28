@@ -119,9 +119,9 @@ function updateUpgradeProgress() {
         const pct = (state.terminalExp / state.terminalExpMax) * 100;
         document.getElementById('upg-bar-fill').style.width = `${pct}%`;
         
-        //🔥 根據構建與充能狀態更新按鈕文字
         if (state.isBuilding) {
-            btn.disabled = true;
+            //🔥 正在構建中時按鈕不再 disable，改為允許點擊使用加速卷
+            btn.disabled = false; 
             const remaining = state.buildEndTime - Date.now();
             btn.innerText = `構建中 ${formatTime(remaining > 0 ? remaining : 0)}`;
         } else if (state.terminalExp >= state.terminalExpMax) {
@@ -136,28 +136,53 @@ function updateUpgradeProgress() {
 }
 
 function buyTerminalExp() {
-    if (state.terminalLevel >= 5 || state.isBuilding) return;
+    //🔥 如果正在構建，觸發加速詢問
+    if (state.isBuilding) {
+        const remainingMs = state.buildEndTime - Date.now();
+        if (remainingMs <= 0) return;
 
-    //🔥 狀態一：進度已滿，點擊觸發「開始構建」
+        const msPerScroll = 5 * 60 * 1000; // 5 分鐘
+        const scrollsNeeded = Math.ceil(remainingMs / msPerScroll);
+
+        if (confirm(`是否消耗 ${scrollsNeeded} 個加速卷直接完成構建？\n(當前擁有: ${state.speedUpScrolls} 個)`)) {
+            useSpeedUpScroll(scrollsNeeded);
+        }
+        return;
+    }
+
+    if (state.terminalLevel >= 5) return;
+
     if (state.terminalExp >= state.terminalExpMax) {
         startBuilding();
         return;
     }
 
-    // 狀態二：進度未滿，點擊進行「充能」
     const cost = state.terminalLevel * 50;
-    if (state.gold < cost) {
-        // 可以加上金幣不足的提示
-        return;
-    }
+    if (state.gold < cost) return;
 
     state.gold -= cost;
     state.terminalExp += 1;
     
+    //🔥 記得同步更新彈窗頂部的金幣顯示
+    document.getElementById('upg-modal-gold').innerText = state.gold;
     updateUpgradeProgress();
     updateDisplay();
 }
 
+function useSpeedUpScroll(count) {
+    if (state.speedUpScrolls < count) {
+        alert("加速卷不足！");
+        return;
+    }
+
+    state.speedUpScrolls -= count;
+    // 直接完成構建
+    finishBuilding();
+    
+    // 更新介面
+    document.getElementById('upg-modal-scrolls').innerText = state.speedUpScrolls;
+    updateDisplay();
+}
 //🔥 新增計時器變數與構建相關函式
 let buildTimer = null;
 
