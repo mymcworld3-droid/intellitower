@@ -37,7 +37,6 @@ function updateDisplay() {
 
 async function triggerUnbox() {
     if (state.energy <= 0) {
-        showToast("算力耗盡！請先透過答題補充");
         return;
     }
     state.energy -= 1;
@@ -95,12 +94,10 @@ function buyTerminalExp() {
     const cost = state.terminalLevel * 50;
     
     if (state.terminalLevel >= 5 && state.terminalExp >= state.terminalExpMax) {
-        showToast("解碼器已達最高等級！");
         return;
     }
 
     if (state.gold < cost) {
-        showToast("金幣不足以充能！");
         return;
     }
 
@@ -113,7 +110,6 @@ function buyTerminalExp() {
         if (state.terminalLevel < 5) {
             document.getElementById('btn-buy-exp').disabled = true;
             document.getElementById('btn-buy-exp').innerText = "升級構建中...";
-            showToast("開始構建下一級解碼器...");
             
             // 模擬升級需要時間 (2秒)
             setTimeout(() => {
@@ -180,15 +176,6 @@ function calculateTotalPower() {
     return base;
 }
 
-function showToast(msg) {
-    const container = document.getElementById('toast-container');
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.innerText = msg;
-    container.appendChild(t);
-    setTimeout(() => t.remove(), 2000);
-}
-
 function confirmEquip() {
     if (!pendingItem) return;
     
@@ -216,9 +203,7 @@ function confirmEquip() {
 function confirmRecycle() {
     if (!pendingItem) return;
     
-    state.gold += pendingItem.sellValue;
-    showToast(`回收成功：獲得 ${pendingItem.sellValue} 金幣`);
-    
+    state.gold += pendingItem.sellValue;   
     closeModal();
     updateDisplay();
 }
