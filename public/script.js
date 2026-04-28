@@ -3,7 +3,7 @@ let state = {
     lv: 1,
     power: 100,
     gold: 50000,
-    energy: 50,
+    energy: 500,
     speedUpScrolls: 1000, //🔥 初始給 10 個加速卷測試
     terminalLevel: 1,
     terminalExp: 0,
