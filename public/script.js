@@ -74,7 +74,10 @@ function openUpgradeModal() {
     document.getElementById('upg-current-lv').innerText = curLv;
     document.getElementById('upg-next-lv').innerText = curLv >= 5 ? 'MAX' : nextLv;
     
-    // 渲染當前與下一級的 10 階機率表
+    //🔥 更新彈窗頂部資訊
+    document.getElementById('upg-modal-gold').innerText = state.gold;
+    document.getElementById('upg-modal-scrolls').innerText = state.speedUpScrolls;
+    
     document.getElementById('rate-current-list').innerHTML = renderRatesHTML(curLv);
     
     if (curLv >= 5) {
