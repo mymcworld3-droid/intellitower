@@ -102,10 +102,10 @@ function updateUpgradeProgress() {
         document.getElementById('upg-bar-fill').style.width = `${pct}%`;
         
         const cost = state.terminalLevel * 50; // 充能費用隨等級提升
-        document.getElementById('upg-cost').innerText = cost;
         
         const btn = document.getElementById('btn-buy-exp');
         btn.disabled = false;
+        //🔥 直接重新生成包含 upg-cost 的按鈕內容，刪除了上一版會導致尋找不到元素而當機的錯誤寫法
         btn.innerHTML = `充能 (🪙 <span id="upg-cost">${cost}</span>)`;
     }
 }
