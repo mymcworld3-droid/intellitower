@@ -12,7 +12,6 @@
             <div class="stat-box">LV. <span id="val-lv">1</span></div>
             <div class="stat-box">戰力: <span id="val-power">100</span></div>
             <div class="stat-box">🪙 <span id="val-gold">0</span></div>
-            <div class="stat-box">⚡ <span id="val-energy">50</span></div>
         </div>
 
         <div class="combat-area">
@@ -42,6 +41,7 @@
             <div class="terminal-display">
                 <div class="terminal-text">QUANTUM_TERMINAL_V1.0</div>
                 <div class="glitch-line"></div>
+                <div class="energy-display">⚡ 算力: <span id="val-energy">50</span></div>
             </div>
             <button id="unbox-btn" onclick="triggerUnbox()">
                 <span class="btn-main">解碼</span>
@@ -50,6 +50,33 @@
             <div class="auto-toggle">
                 <input type="checkbox" id="auto-check">
                 <label for="auto-check">自動解碼</label>
+            </div>
+        </div>
+
+        <div id="compare-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">數據模組比對</div>
+                
+                <div class="compare-box old-equip">
+                    <div class="equip-label">當前裝備 <span id="modal-type"></span></div>
+                    <div class="equip-name" id="modal-old-name">無</div>
+                    <div class="equip-power" id="modal-old-power">Power +0</div>
+                </div>
+
+                <div class="compare-arrow">
+                    ➡️ 戰力差異: <span id="modal-diff">0</span>
+                </div>
+
+                <div class="compare-box new-equip">
+                    <div class="equip-label">新解析模組</div>
+                    <div class="equip-name" id="modal-new-name">無</div>
+                    <div class="equip-power" id="modal-new-power">Power +0</div>
+                </div>
+
+                <div class="modal-buttons">
+                    <button id="btn-equip" class="btn-primary" onclick="confirmEquip()">裝備</button>
+                    <button id="btn-recycle" class="btn-secondary" onclick="confirmRecycle()">回收 (🪙 +<span id="modal-recycle-val">0</span>)</button>
+                </div>
             </div>
         </div>
     </div>
