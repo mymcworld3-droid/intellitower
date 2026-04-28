@@ -19,6 +19,7 @@ const RARITIES = [
 
 // 開箱 API
 app.post('/api/unbox', (req, res) => {
+    const playerLevel = req.body.playerLevel || 1; //🔥 獲取前端傳來的玩家等級
     const randomType = EQUIPMENT_TYPES[Math.floor(Math.random() * EQUIPMENT_TYPES.length)];
     
     // 決定稀有度
@@ -33,17 +34,26 @@ app.post('/api/unbox', (req, res) => {
         }
     }
 
-    const basePower = Math.floor(Math.random() * 20) + 10;
-    const finalPower = Math.floor(basePower * selectedRarity.multiplier);
+    //🔥 裝備等級：玩家等級 +- 3 (最低為 1)
+    let equipLevel = playerLevel + Math.floor(Math.random() * 7) - 3;
+    if (equipLevel < 1) equipLevel = 1;
+
+    //🔥 依據「裝備等級」與「稀有度」計算攻擊、生命、防禦
+    const power = Math.floor(equipLevel * 10 * selectedRarity.multiplier * (0.8 + Math.random() * 0.4));
+    const hp = Math.floor(equipLevel * 50 * selectedRarity.multiplier * (0.8 + Math.random() * 0.4));
+    const def = Math.floor(equipLevel * 5 * selectedRarity.multiplier * (0.8 + Math.random() * 0.4));
 
     const newItem = {
         id: Date.now(),
         type: randomType,
-        name: `${selectedRarity.name}級數據模組`,
+        name: `${selectedRarity.name}級模組`,
         rarity: selectedRarity.name,
         color: selectedRarity.color,
-        power: finalPower,
-        sellValue: Math.floor(finalPower * 0.5)
+        level: equipLevel, //🔥 傳回等級
+        power: power,
+        hp: hp,
+        def: def,
+        sellValue: Math.floor(power * 0.5)
     };
 
     res.json({ success: true, item: newItem });
