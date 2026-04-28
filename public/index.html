@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智域駭客：源碼傳說</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="game-viewport">
+        <div class="top-stats">
+            <div class="stat-box">LV. <span id="val-lv">1</span></div>
+            <div class="stat-box">戰力: <span id="val-power">100</span></div>
+            <div class="stat-box">🪙 <span id="val-gold">0</span></div>
+            <div class="stat-box">⚡ <span id="val-energy">50</span></div>
+        </div>
+
+        <div class="combat-area">
+            <div class="player-character">
+                <div class="avatar">HACKER</div>
+                <div class="health-bar"></div>
+            </div>
+            <div class="vs-label">VS</div>
+            <div class="enemy-character">
+                <div class="avatar">FIREWALL</div>
+                <div class="health-bar"></div>
+            </div>
+        </div>
+
+        <div class="equipment-grid">
+            <div class="slot" data-type="weapon">武器</div>
+            <div class="slot" data-type="head">頭部</div>
+            <div class="slot" data-type="chest">身體</div>
+            <div class="slot" data-type="legs">腿部</div>
+            <div class="slot" data-type="feet">鞋子</div>
+            <div class="slot" data-type="accessory">飾品</div>
+        </div>
+
+        <div id="toast-container"></div>
+
+        <div class="terminal-footer">
+            <div class="terminal-display">
+                <div class="terminal-text">QUANTUM_TERMINAL_V1.0</div>
+                <div class="glitch-line"></div>
+            </div>
+            <button id="unbox-btn" onclick="triggerUnbox()">
+                <span class="btn-main">解碼</span>
+                <span class="btn-sub">消耗 1 算力</span>
+            </button>
+            <div class="auto-toggle">
+                <input type="checkbox" id="auto-check">
+                <label for="auto-check">自動解碼</label>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
