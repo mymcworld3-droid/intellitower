@@ -92,5 +92,28 @@ function showToast(msg) {
     setTimeout(() => t.remove(), 2000);
 }
 
+//🔥 新增裝備與回收的確認函式
+function confirmEquip() {
+    if (!pendingItem) return;
+    
+    state.equipment[pendingItem.type] = {
+        power: pendingItem.power,
+        name: pendingItem.name,
+        color: pendingItem.color
+    };
+    state.power = calculateTotalPower();
+    
+    // 更新 UI 槽位
+    const slot = document.querySelector(`.slot[data-type="${pendingItem.type}"]`);
+    slot.innerHTML = `<strong>${pendingItem.name}</strong><br>+${pendingItem.power}`;
+    slot.style.borderColor = pendingItem.color;
+    slot.classList.add('active');
+    
+    showToast(`裝備成功：${pendingItem.name}！`);
+    
+    closeModal();
+    updateDisplay();
+}
+
 // 初始化
 updateDisplay();
