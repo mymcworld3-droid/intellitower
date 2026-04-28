@@ -225,16 +225,22 @@ function processNewItem(item) {
     
     document.getElementById('modal-type').innerText = `[${getTranslateType(item.type)}]`;
     
-    //🔥 舊裝備資料：顯示等級、攻擊、生命、防禦
     document.getElementById('modal-old-name').innerText = currentEquip.name;
     document.getElementById('modal-old-power').innerHTML = `Lv.${currentEquip.level}<br>攻擊 +${currentEquip.power}<br>生命 +${currentEquip.hp || 0}<br>防禦 +${currentEquip.def || 0}`;
     
-    //🔥 新裝備資料
-    document.getElementById('modal-new-name').innerText = item.name;
-    document.getElementById('modal-new-name').style.color = item.color;
+    //🔥 彈窗新裝備資料套用顏色與特效
+    const newNameEl = document.getElementById('modal-new-name');
+    newNameEl.innerText = item.name;
+    newNameEl.style.color = item.color;
+    // 清除舊特效並加上新特效 (如果有的話)
+    newNameEl.className = 'equip-name'; 
+    if (item.cssClass) {
+        newNameEl.classList.add(item.cssClass);
+        newNameEl.style.setProperty('--rarity-color', item.color); // 傳遞顏色給 CSS 變數
+    }
+
     document.getElementById('modal-new-power').innerHTML = `Lv.${item.level}<br>攻擊 +${item.power}<br>生命 +${item.hp}<br>防禦 +${item.def}`;
     
-    // 計算差異 (目前以戰力為主)
     const diff = item.power - currentEquip.power;
     const diffSpan = document.getElementById('modal-diff');
     if (diff > 0) {
@@ -260,22 +266,31 @@ function calculateTotalPower() {
 function confirmEquip() {
     if (!pendingItem) return;
     
-    //🔥 更新數值至 state
+    //🔥 更新數值至 state，並存下 cssClass
     state.equipment[pendingItem.type] = {
         level: pendingItem.level,
         power: pendingItem.power,
         hp: pendingItem.hp,
         def: pendingItem.def,
         name: pendingItem.name,
-        color: pendingItem.color
+        color: pendingItem.color,
+        cssClass: pendingItem.cssClass
     };
     state.power = calculateTotalPower();
     
-    //🔥 介面文字只顯示等級
+    //🔥 裝備欄位套用特效與顏色
     const slot = document.querySelector(`.slot[data-type="${pendingItem.type}"]`);
     slot.innerHTML = `Lv.${pendingItem.level}`; 
     slot.style.borderColor = pendingItem.color;
     slot.classList.add('active');
+    
+    // 移除之前的各種特效
+    slot.classList.remove('effect-glow', 'effect-particle', 'effect-rainbow');
+    // 如果裝備有專屬特效則掛上，並利用 CSS 變數改變發光顏色
+    if (pendingItem.cssClass) {
+        slot.classList.add(pendingItem.cssClass);
+        slot.style.setProperty('--rarity-color', pendingItem.color);
+    }
 
     closeModal();
     updateDisplay();
