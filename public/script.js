@@ -59,16 +59,6 @@ async function triggerUnbox() {
     }
 }
 
-function renderRatesHTML(lv) {
-    const r = gachaRates[lv];
-    return `
-        <div style="color:#9e9e9e;">普通: ${r['普通']}%</div>
-        <div style="color:#2196f3;">稀有: ${r['稀有']}%</div>
-        <div style="color:#9c27b0;">史詩: ${r['史詩']}%</div>
-        <div style="color:#ff9800;">傳說: ${r['傳說']}%</div>
-    `;
-}
-
 function openUpgradeModal() {
     const curLv = state.terminalLevel;
     const nextLv = Math.min(curLv + 1, 5); 
@@ -76,11 +66,11 @@ function openUpgradeModal() {
     document.getElementById('upg-current-lv').innerText = curLv;
     document.getElementById('upg-next-lv').innerText = curLv >= 5 ? 'MAX' : nextLv;
     
+    // 渲染當前與下一級的 10 階機率表
     document.getElementById('rate-current-list').innerHTML = renderRatesHTML(curLv);
     
-    //🔥 判斷是否滿級，滿級時隱藏下一級機率並顯示提示
     if (curLv >= 5) {
-        document.getElementById('rate-next-list').innerHTML = '<div style="color:#aaa; text-align:center; margin-top:10px;">已達最高等級</div>';
+        document.getElementById('rate-next-list').innerHTML = '<div style="color:#aaa; text-align:center; margin-top:20px;">已達最高等級</div>';
     } else {
         document.getElementById('rate-next-list').innerHTML = renderRatesHTML(nextLv);
     }
@@ -89,13 +79,28 @@ function openUpgradeModal() {
     document.getElementById('upgrade-modal').style.display = 'flex';
 }
 
+function renderRatesHTML(lv) {
+    const r = gachaRates[lv];
+    let html = '';
+    //🔥 遍歷所有稀有度，僅顯示機率大於 0 的項目
+    for (let rarity in rarityColors) {
+        const chance = r[rarity] || 0;
+        if (chance > 0) {
+            html += `<div style="color:${rarityColors[rarity]}; font-weight:bold; margin-bottom:4px; font-size:12px;">
+                ${rarity}: ${chance}%
+            </div>`;
+        }
+    }
+    return html || '<div style="color:#666;">無資料</div>';
+}
+
 function updateUpgradeProgress() {
-    //🔥 新增滿級判斷，改變介面顯示
+    const btn = document.getElementById('btn-buy-exp');
+    if (!btn) return;
+
     if (state.terminalLevel >= 5) {
         document.getElementById('upg-exp-text').innerText = 'MAX';
         document.getElementById('upg-bar-fill').style.width = '100%';
-        
-        const btn = document.getElementById('btn-buy-exp');
         btn.disabled = true;
         btn.innerText = '已滿級';
     } else {
@@ -103,9 +108,7 @@ function updateUpgradeProgress() {
         const pct = (state.terminalExp / state.terminalExpMax) * 100;
         document.getElementById('upg-bar-fill').style.width = `${pct}%`;
         
-        const btn = document.getElementById('btn-buy-exp');
-        
-        //🔥 根據狀態判斷按鈕顯示：構建中、可構建、可充能
+        //🔥 根據構建與充能狀態更新按鈕文字
         if (state.isBuilding) {
             btn.disabled = true;
             const remaining = state.buildEndTime - Date.now();
@@ -114,7 +117,7 @@ function updateUpgradeProgress() {
             btn.disabled = false;
             btn.innerText = "開始構建";
         } else {
-            const cost = state.terminalLevel * 50; // 充能費用隨等級提升
+            const cost = state.terminalLevel * 50;
             btn.disabled = false;
             btn.innerHTML = `充能 (🪙 <span id="upg-cost">${cost}</span>)`;
         }
@@ -122,24 +125,21 @@ function updateUpgradeProgress() {
 }
 
 function buyTerminalExp() {
-    //🔥 如果已經滿級或正在構建中，不執行任何動作
-    if (state.terminalLevel >= 5 || state.isBuilding) {
-        return;
-    }
+    if (state.terminalLevel >= 5 || state.isBuilding) return;
 
-    //🔥 如果充能已滿，則點擊時觸發「開始構建」
+    //🔥 狀態一：進度已滿，點擊觸發「開始構建」
     if (state.terminalExp >= state.terminalExpMax) {
         startBuilding();
         return;
     }
 
+    // 狀態二：進度未滿，點擊進行「充能」
     const cost = state.terminalLevel * 50;
-    
     if (state.gold < cost) {
+        // 可以加上金幣不足的提示
         return;
     }
 
-    // 扣除金幣並增加進度格
     state.gold -= cost;
     state.terminalExp += 1;
     
