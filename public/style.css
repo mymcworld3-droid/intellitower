@@ -41,8 +41,7 @@ body {
     overflow: hidden;
 }
 
-/* 🔥 新增這一段：確保內部區塊在螢幕太小時會自動壓縮，避免把畫面上下撐破截斷 */
-.combat-area, .equipment-grid, .terminal-footer {
+.terminal-footer {
     min-height: 0; 
 }
 
@@ -54,14 +53,6 @@ body {
     color: var(--neon-blue);
     font-weight: bold;
     font-size: 14px;
-}
-
-.combat-area {
-    flex: 2;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background: linear-gradient(180deg, #120458 0%, #0d0221 100%);
 }
 
 .avatar {
@@ -81,26 +72,96 @@ body {
     50% { transform: translateY(-10px); }
 }
 
-.equipment-grid {
-    flex: 1.5;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+/*🔥 讓戰鬥區容納左右兩側的裝備 */
+.combat-area {
+    flex: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, #120458 0%, #0d0221 100%);
+    padding: 0 15px; 
+    min-height: 0;
+}
+
+/*🔥 角色區域置中 */
+.characters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+/*🔥 裝備欄位直列與縮小尺寸 */
+.equip-col {
+    display: flex;
+    flex-direction: column;
     gap: 10px;
-    padding: 20px;
 }
 
 .slot {
-    aspect-ratio: 1;
+    width: 45px; 
+    height: 45px;
     background: var(--glass);
     border: 1px solid #333;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 12px;
-    color: #666;
-    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 5px;
     text-align: center;
+}
+
+/* 記得刪除舊的 .equipment-grid 樣式 */
+
+.terminal-footer {
+    flex: 1.2;
+    background: #000;
+    padding: 10px 20px; /*🔥 稍微縮小內距讓給導覽列 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    min-height: 0;
+}
+
+/*🔥 以下為新增的聊天室與導覽列樣式 */
+.chat-bar {
+    height: 30px;
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid #333;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    font-size: 12px;
+    color: #ccc;
+}
+
+.bottom-nav {
+    height: 60px;
+    background: #050114;
+    border-top: 2px solid var(--neon-blue);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: 5px; /* 預留手機底線空間 */
+}
+
+.nav-item {
+    color: #666;
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    color: var(--neon-blue);
+    text-shadow: 0 0 8px rgba(0, 242, 255, 0.5);
 }
 
 .slot.active {
