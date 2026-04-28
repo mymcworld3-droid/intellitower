@@ -7,6 +7,8 @@ let state = {
     terminalLevel: 1,
     terminalExp: 0,
     terminalExpMax: 5,
+    isBuilding: false, //🔥 標記是否正在構建中
+    buildEndTime: 0, //🔥 記錄構建結束的時間戳記
     equipment: {
         weapon: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
         head: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
@@ -101,18 +103,33 @@ function updateUpgradeProgress() {
         const pct = (state.terminalExp / state.terminalExpMax) * 100;
         document.getElementById('upg-bar-fill').style.width = `${pct}%`;
         
-        const cost = state.terminalLevel * 50; // 充能費用隨等級提升
-        
         const btn = document.getElementById('btn-buy-exp');
-        btn.disabled = false;
-        //🔥 直接重新生成包含 upg-cost 的按鈕內容，刪除了上一版會導致尋找不到元素而當機的錯誤寫法
-        btn.innerHTML = `充能 (🪙 <span id="upg-cost">${cost}</span>)`;
+        
+        //🔥 根據狀態判斷按鈕顯示：構建中、可構建、可充能
+        if (state.isBuilding) {
+            btn.disabled = true;
+            const remaining = state.buildEndTime - Date.now();
+            btn.innerText = `構建中 ${formatTime(remaining > 0 ? remaining : 0)}`;
+        } else if (state.terminalExp >= state.terminalExpMax) {
+            btn.disabled = false;
+            btn.innerText = "開始構建";
+        } else {
+            const cost = state.terminalLevel * 50; // 充能費用隨等級提升
+            btn.disabled = false;
+            btn.innerHTML = `充能 (🪙 <span id="upg-cost">${cost}</span>)`;
+        }
     }
 }
 
 function buyTerminalExp() {
-    //🔥 如果已經滿級，直接返回，避免後續扣除金幣
-    if (state.terminalLevel >= 5) {
+    //🔥 如果已經滿級或正在構建中，不執行任何動作
+    if (state.terminalLevel >= 5 || state.isBuilding) {
+        return;
+    }
+
+    //🔥 如果充能已滿，則點擊時觸發「開始構建」
+    if (state.terminalExp >= state.terminalExpMax) {
+        startBuilding();
         return;
     }
 
@@ -126,34 +143,76 @@ function buyTerminalExp() {
     state.gold -= cost;
     state.terminalExp += 1;
     
-    // 如果格滿了，觸發升級 (模擬耗時)
-    if (state.terminalExp >= state.terminalExpMax) {
-        document.getElementById('btn-buy-exp').disabled = true;
-        document.getElementById('btn-buy-exp').innerText = "升級構建中...";
+    updateUpgradeProgress();
+    updateDisplay();
+}
+
+//🔥 新增計時器變數與構建相關函式
+let buildTimer = null;
+
+function startBuilding() {
+    state.isBuilding = true;
+    
+    //🔥 等級一為 5 分鐘 (300秒)，後續等級時間會隨之增加 (級別 * 5分鐘)
+    const buildSeconds = state.terminalLevel * 5 * 60; 
+    state.buildEndTime = Date.now() + buildSeconds * 1000;
+    
+    updateUpgradeProgress();
+    
+    //🔥 設定每秒更新的倒數計時器
+    buildTimer = setInterval(() => {
+        const now = Date.now();
+        const remaining = state.buildEndTime - now;
         
-        // 模擬升級需要時間 (2秒)
-        setTimeout(() => {
-            state.terminalLevel += 1;
-            state.terminalExp = 0;
-            
-            //🔥 升級後判斷是否到達滿級，若未滿級才增加所需格數
-            if (state.terminalLevel < 5) {
-                state.terminalExpMax = state.terminalLevel * 5; // 升級所需格數增加 (5, 10, 15...)
+        if (remaining <= 0) {
+            finishBuilding();
+        } else {
+            const btn = document.getElementById('btn-buy-exp');
+            // 確保彈窗開著時才去更新文字
+            if (btn && state.isBuilding) {
+                btn.innerText = `構建中 ${formatTime(remaining)}`;
             }
-            
-            document.getElementById('btn-terminal-level').innerText = state.terminalLevel >= 5 ? 'Lv.MAX' : `Lv.${state.terminalLevel}`;
-            document.getElementById('btn-buy-exp').disabled = false;
-            
-            showToast(`升級成功！當前為 Lv.${state.terminalLevel}`);
-            updateUpgradeProgress();
-            openUpgradeModal(); // 刷新畫面
-            updateDisplay();
-        }, 2000);
-    } else {
-        //🔥 確保沒升級時也會更新進度與畫面
-        updateUpgradeProgress();
-        updateDisplay();
+        }
+    }, 1000);
+}
+
+function finishBuilding() {
+    clearInterval(buildTimer);
+    state.isBuilding = false;
+    state.terminalLevel += 1;
+    state.terminalExp = 0;
+    
+    // 升級後判斷是否到達滿級，若未滿級才增加所需格數
+    if (state.terminalLevel < 5) {
+        state.terminalExpMax = state.terminalLevel * 5;
     }
+    
+    document.getElementById('btn-terminal-level').innerText = state.terminalLevel >= 5 ? 'Lv.MAX' : `Lv.${state.terminalLevel}`;
+    
+    // 如果有實作 showToast 可以用來提醒玩家
+    if (typeof showToast === "function") {
+        showToast(`升級成功！當前為 Lv.${state.terminalLevel}`);
+    }
+    
+    updateUpgradeProgress();
+    // 如果升級完成時彈窗開著，主動刷新內容
+    if (document.getElementById('upgrade-modal').style.display === 'flex') {
+        openUpgradeModal(); 
+    }
+    updateDisplay();
+}
+
+function formatTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    
+    const hStr = String(hours).padStart(2, '0');
+    const mStr = String(minutes).padStart(2, '0');
+    const sStr = String(seconds).padStart(2, '0');
+    
+    return `${hStr}:${mStr}:${sStr}`;
 }
 
 function closeUpgradeModal() {
