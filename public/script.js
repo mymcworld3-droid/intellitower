@@ -1,16 +1,16 @@
-//🔥 更新 state，讓裝備預設為物件以便記錄名稱
+//🔥 更新 state，加入詳細的數值
 let state = {
     lv: 1,
     power: 100,
     gold: 0,
     energy: 50,
     equipment: {
-        weapon: { power: 0, name: '無裝備' },
-        head: { power: 0, name: '無裝備' },
-        chest: { power: 0, name: '無裝備' },
-        legs: { power: 0, name: '無裝備' },
-        feet: { power: 0, name: '無裝備' },
-        accessory: { power: 0, name: '無裝備' }
+        weapon: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
+        head: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
+        chest: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
+        legs: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
+        feet: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
+        accessory: { level: 0, power: 0, hp: 0, def: 0, name: '無' }
     }
 };
 
@@ -33,7 +33,12 @@ async function triggerUnbox() {
     updateDisplay();
 
     try {
-        const response = await fetch('/api/unbox', { method: 'POST' });
+        //🔥 傳送目前玩家等級給後端
+        const response = await fetch('/api/unbox', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ playerLevel: state.lv })
+        });
         const data = await response.json();
         processNewItem(data.item);
     } catch (err) {
@@ -42,22 +47,21 @@ async function triggerUnbox() {
 }
 
 function processNewItem(item) {
-    //🔥 改為彈出比對畫面，不再自動裝備
     pendingItem = item;
     const currentEquip = state.equipment[item.type];
     
     document.getElementById('modal-type').innerText = `[${getTranslateType(item.type)}]`;
     
-    // 舊裝備資料
+    //🔥 舊裝備資料：顯示等級、攻擊、生命、防禦
     document.getElementById('modal-old-name').innerText = currentEquip.name;
-    document.getElementById('modal-old-power').innerText = `Power +${currentEquip.power}`;
+    document.getElementById('modal-old-power').innerHTML = `Lv.${currentEquip.level}<br>攻擊 +${currentEquip.power}<br>生命 +${currentEquip.hp || 0}<br>防禦 +${currentEquip.def || 0}`;
     
-    // 新裝備資料
+    //🔥 新裝備資料
     document.getElementById('modal-new-name').innerText = item.name;
     document.getElementById('modal-new-name').style.color = item.color;
-    document.getElementById('modal-new-power').innerText = `Power +${item.power}`;
+    document.getElementById('modal-new-power').innerHTML = `Lv.${item.level}<br>攻擊 +${item.power}<br>生命 +${item.hp}<br>防禦 +${item.def}`;
     
-    // 計算差異
+    // 計算差異 (目前以戰力為主)
     const diff = item.power - currentEquip.power;
     const diffSpan = document.getElementById('modal-diff');
     if (diff > 0) {
@@ -68,10 +72,7 @@ function processNewItem(item) {
         diffSpan.className = 'diff-negative';
     }
 
-    // 回收金額
     document.getElementById('modal-recycle-val').innerText = item.sellValue;
-
-    // 顯示彈窗
     document.getElementById('compare-modal').style.display = 'flex';
 }
 
@@ -92,25 +93,27 @@ function showToast(msg) {
     setTimeout(() => t.remove(), 2000);
 }
 
-//🔥 新增裝備與回收的確認函式
 function confirmEquip() {
     if (!pendingItem) return;
     
+    //🔥 更新數值至 state
     state.equipment[pendingItem.type] = {
+        level: pendingItem.level,
         power: pendingItem.power,
+        hp: pendingItem.hp,
+        def: pendingItem.def,
         name: pendingItem.name,
         color: pendingItem.color
     };
     state.power = calculateTotalPower();
     
-    // 更新 UI 槽位
+    //🔥 介面文字只顯示等級
     const slot = document.querySelector(`.slot[data-type="${pendingItem.type}"]`);
-    slot.innerHTML = `<strong>${pendingItem.name}</strong><br>+${pendingItem.power}`;
+    slot.innerHTML = `Lv.${pendingItem.level}`; 
     slot.style.borderColor = pendingItem.color;
     slot.classList.add('active');
     
     showToast(`裝備成功：${pendingItem.name}！`);
-    
     closeModal();
     updateDisplay();
 }
