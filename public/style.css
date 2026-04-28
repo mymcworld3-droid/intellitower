@@ -329,3 +329,80 @@ body {
     color: #fff;
     border: 1px solid #555 !important;
 }
+
+/*🔥 徹底防止平板與手機上雙擊按鈕或文字造成的放大效果 */
+button, input, select, textarea, .nav-item, .slot {
+    touch-action: manipulation;
+}
+
+/*🔥 解碼按鈕容器與右下角的等級按鈕 */
+.unbox-wrapper {
+    position: relative;
+    width: 80%;
+}
+
+#unbox-btn {
+    width: 100%; /* 覆蓋原本寫在 #unbox-btn 的寬度 */
+}
+
+.level-btn-corner {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    background: var(--neon-pink);
+    color: white;
+    border: 2px solid #000;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--neon-pink);
+    z-index: 10;
+}
+
+/*🔥 升級彈窗專用樣式 */
+.rates-comparison {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.rate-col {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.rate-col h4 {
+    text-align: center;
+    margin-bottom: 5px;
+    color: var(--neon-blue);
+    font-size: 14px;
+}
+
+.progress-text {
+    font-size: 13px;
+    font-weight: bold;
+    color: #ccc;
+    margin-bottom: 5px;
+}
+
+.progress-bar-container {
+    height: 15px;
+    background: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #555;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--neon-blue);
+    transition: width 0.3s;
+}
