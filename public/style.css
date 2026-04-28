@@ -92,6 +92,16 @@ body {
     flex: 1;
 }
 
+.equipment-panel {
+    display: flex;
+    gap: 10px; /* 兩直行之間的左右距離，可視需求加大或縮小 */
+    padding: 15px 10px;
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #333;
+    min-height: 0;
+}
+
 /*🔥 裝備欄位直列與縮小尺寸 */
 .equip-col {
     display: flex;
