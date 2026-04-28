@@ -45,6 +45,9 @@ function updateDisplay() {
     document.getElementById('val-energy').innerText = state.energy;
 }
 
+function showToast(msg) {
+    console.log("[系統提示]: " + msg);
+}
 async function triggerUnbox() {
     if (state.energy <= 0) {
         return;
@@ -136,15 +139,15 @@ function updateUpgradeProgress() {
 }
 
 function buyTerminalExp() {
-    //🔥 如果正在構建，觸發加速詢問
+    //🔥 加速功能邏輯
     if (state.isBuilding) {
         const remainingMs = state.buildEndTime - Date.now();
         if (remainingMs <= 0) return;
 
-        const msPerScroll = 5 * 60 * 1000; // 5 分鐘
+        const msPerScroll = 5 * 60 * 1000; // 5 分鐘跳過
         const scrollsNeeded = Math.ceil(remainingMs / msPerScroll);
 
-        if (confirm(`是否消耗 ${scrollsNeeded} 個加速卷直接完成構建？\n(當前擁有: ${state.speedUpScrolls} 個)`)) {
+        if (confirm(`是否消耗 ${scrollsNeeded} 個加速卷直接完成構建？\n(剩餘時間需使用 ${scrollsNeeded} 個，目前擁有: ${state.speedUpScrolls} 個)`)) {
             useSpeedUpScroll(scrollsNeeded);
         }
         return;
@@ -158,13 +161,18 @@ function buyTerminalExp() {
     }
 
     const cost = state.terminalLevel * 50;
-    if (state.gold < cost) return;
+    if (state.gold < cost) {
+        alert("金幣不足！");
+        return;
+    }
 
     state.gold -= cost;
     state.terminalExp += 1;
     
-    //🔥 記得同步更新彈窗頂部的金幣顯示
-    document.getElementById('upg-modal-gold').innerText = state.gold;
+    // 同步彈窗內顯示
+    const upgGold = document.getElementById('upg-modal-gold');
+    if(upgGold) upgGold.innerText = state.gold;
+
     updateUpgradeProgress();
     updateDisplay();
 }
