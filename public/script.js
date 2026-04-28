@@ -42,26 +42,37 @@ async function triggerUnbox() {
 }
 
 function processNewItem(item) {
-    const currentPower = state.equipment[item.type];
+    //🔥 改為彈出比對畫面，不再自動裝備
+    pendingItem = item;
+    const currentEquip = state.equipment[item.type];
     
-    if (item.power > currentPower) {
-        // 裝備更好的
-        state.equipment[item.type] = item.power;
-        state.power = calculateTotalPower();
-        
-        // 更新 UI 槽位
-        const slot = document.querySelector(`.slot[data-type="${item.type}"]`);
-        slot.innerHTML = `<strong>${item.name}</strong><br>+${item.power}`;
-        slot.style.borderColor = item.color;
-        slot.classList.add('active');
-        
-        showToast(`獲得裝備：${item.name}！戰力提升`);
+    document.getElementById('modal-type').innerText = `[${getTranslateType(item.type)}]`;
+    
+    // 舊裝備資料
+    document.getElementById('modal-old-name').innerText = currentEquip.name;
+    document.getElementById('modal-old-power').innerText = `Power +${currentEquip.power}`;
+    
+    // 新裝備資料
+    document.getElementById('modal-new-name').innerText = item.name;
+    document.getElementById('modal-new-name').style.color = item.color;
+    document.getElementById('modal-new-power').innerText = `Power +${item.power}`;
+    
+    // 計算差異
+    const diff = item.power - currentEquip.power;
+    const diffSpan = document.getElementById('modal-diff');
+    if (diff > 0) {
+        diffSpan.innerText = `+${diff} (提升)`;
+        diffSpan.className = 'diff-positive';
     } else {
-        // 出售較弱的
-        state.gold += item.sellValue;
-        showToast(`回收模組：獲得 ${item.sellValue} 金幣`);
+        diffSpan.innerText = `${diff} (較弱)`;
+        diffSpan.className = 'diff-negative';
     }
-    updateDisplay();
+
+    // 回收金額
+    document.getElementById('modal-recycle-val').innerText = item.sellValue;
+
+    // 顯示彈窗
+    document.getElementById('compare-modal').style.display = 'flex';
 }
 
 function calculateTotalPower() {
