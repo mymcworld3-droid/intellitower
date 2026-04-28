@@ -406,3 +406,54 @@ button, input, select, textarea, .nav-item, .slot {
     background: var(--neon-blue);
     transition: width 0.3s;
 }
+
+/*🔥 亮外框效果 (卓越、史詩、傳奇) */
+.effect-glow {
+    box-shadow: 0 0 15px var(--rarity-color), inset 0 0 8px var(--rarity-color) !important;
+    border-color: var(--rarity-color) !important;
+    animation: pulse-glow 1.5s infinite alternate;
+}
+
+/*🔥 框內粒子發光效果 (不朽、超越) 
+使用徑向漸層模擬星空粒子流動，並疊加發光邊框 */
+.effect-particle {
+    box-shadow: 0 0 20px var(--rarity-color), inset 0 0 15px var(--rarity-color) !important;
+    border-color: var(--rarity-color) !important;
+    background-image: 
+        radial-gradient(circle, rgba(255, 255, 255, 0.8) 10%, transparent 20%), 
+        radial-gradient(circle, rgba(255, 255, 255, 0.8) 10%, transparent 20%),
+        linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8)) !important;
+    background-size: 15px 15px, 15px 15px, 100% 100%;
+    background-position: 0 0, 7.5px 7.5px, 0 0;
+    animation: particle-move 3s linear infinite, pulse-glow 1s infinite alternate !important;
+}
+
+/*🔥 永恆 彩虹特效 
+邊框變成流動的彩虹光芒，字體加上白色強烈發光 */
+.effect-rainbow {
+    border: 2px solid transparent !important;
+    background: linear-gradient(#000, #000) padding-box, 
+                linear-gradient(45deg, red, orange, yellow, #4caf50, #00e5ff, #9c27b0, #e91e63) border-box !important;
+    background-size: 300% 300% !important;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.4) !important;
+    animation: rainbow-flow 3s ease infinite !important;
+    color: #fff !important;
+    text-shadow: 0 0 8px #fff, 0 0 15px rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 特效專屬的 Keyframes 動畫 */
+@keyframes pulse-glow {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.4); }
+}
+
+@keyframes particle-move {
+    0% { background-position: 0 0, 7.5px 7.5px, 0 0; }
+    100% { background-position: 30px 30px, 37.5px 37.5px, 0 0; }
+}
+
+@keyframes rainbow-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
