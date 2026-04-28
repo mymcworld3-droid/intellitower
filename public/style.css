@@ -16,23 +16,34 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100dvh; /*🔥 改用 dvh (動態視窗高度)，解決手機上下選單遮擋問題 */
+    width: 100vw;
     font-family: 'Segoe UI', sans-serif;
     overflow: hidden;
+    touch-action: none; /* 禁止所有觸控縮放與手勢操作 */
+    user-select: none; /* 避免點擊過快選取到文字 */
+    -webkit-user-select: none; /* 兼容 Safari */
+    margin: 0; /*🔥 確保沒有系統預設的邊距干擾 */
 }
 
 /* 核心 9:16 容器 */
 #game-viewport {
-    width: 100vw;
-    max-width: 450px;
-    height: calc(100vw * 16 / 9);
-    max-height: 800px;
+    width: 100%;
+    height: 100%;
+    max-width: min(100vw, calc(100dvh * 9 / 16)); /*🔥 雙重限制：絕不超出寬度，且鎖死 9:16 */
+    max-height: min(100dvh, calc(100vw * 16 / 9)); /*🔥 雙重限制：絕不超出高度，且鎖死 9:16 */
     background: var(--bg-dark);
     border: 2px solid var(--neon-blue);
     box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
     display: flex;
     flex-direction: column;
     position: relative;
+    overflow: hidden;
+}
+
+/* 🔥 新增這一段：確保內部區塊在螢幕太小時會自動壓縮，避免把畫面上下撐破截斷 */
+.combat-area, .equipment-grid, .terminal-footer {
+    min-height: 0; 
 }
 
 .top-stats {
