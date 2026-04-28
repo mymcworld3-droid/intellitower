@@ -1,14 +1,15 @@
-//🔥 更新 state，加入終端機等級與升級進度
+//🔥 更新 state，加入加速卷
 let state = {
     lv: 1,
     power: 100,
-    gold: 500, // 給一點初始金幣方便測試
+    gold: 50000,
     energy: 50,
+    speedUpScrolls: 1000, //🔥 初始給 10 個加速卷測試
     terminalLevel: 1,
     terminalExp: 0,
     terminalExpMax: 5,
-    isBuilding: false, //🔥 標記是否正在構建中
-    buildEndTime: 0, //🔥 記錄構建結束的時間戳記
+    isBuilding: false,
+    buildEndTime: 0,
     equipment: {
         weapon: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
         head: { level: 0, power: 0, hp: 0, def: 0, name: '無' },
