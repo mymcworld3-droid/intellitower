@@ -112,8 +112,7 @@ function confirmEquip() {
     slot.innerHTML = `Lv.${pendingItem.level}`; 
     slot.style.borderColor = pendingItem.color;
     slot.classList.add('active');
-    
-    showToast(`裝備成功：${pendingItem.name}！`);
+
     closeModal();
     updateDisplay();
 }
