@@ -67,7 +67,7 @@ function processNewItem(item) {
 function calculateTotalPower() {
     let base = 100;
     for (let key in state.equipment) {
-        base += state.equipment[key];
+        base += state.equipment[key].power; //🔥 改為讀取物件的 power
     }
     return base;
 }
