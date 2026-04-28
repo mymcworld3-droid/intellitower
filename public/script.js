@@ -115,5 +115,27 @@ function confirmEquip() {
     updateDisplay();
 }
 
+function confirmRecycle() {
+    if (!pendingItem) return;
+    
+    state.gold += pendingItem.sellValue;
+    showToast(`回收成功：獲得 ${pendingItem.sellValue} 金幣`);
+    
+    closeModal();
+    updateDisplay();
+}
+
+function closeModal() {
+    document.getElementById('compare-modal').style.display = 'none';
+    pendingItem = null;
+}
+
+function getTranslateType(type) {
+    const types = {
+        weapon: '武器', head: '頭部', chest: '身體', 
+        legs: '腿部', feet: '鞋子', accessory: '飾品'
+    };
+    return types[type] || type;
+}
 // 初始化
 updateDisplay();
