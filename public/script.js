@@ -1,12 +1,20 @@
+//🔥 更新 state，讓裝備預設為物件以便記錄名稱
 let state = {
     lv: 1,
     power: 100,
     gold: 0,
     energy: 50,
     equipment: {
-        weapon: 0, head: 0, chest: 0, legs: 0, feet: 0, accessory: 0
+        weapon: { power: 0, name: '無裝備' },
+        head: { power: 0, name: '無裝備' },
+        chest: { power: 0, name: '無裝備' },
+        legs: { power: 0, name: '無裝備' },
+        feet: { power: 0, name: '無裝備' },
+        accessory: { power: 0, name: '無裝備' }
     }
 };
+
+let pendingItem = null; //🔥 新增變數暫存待確認的裝備
 
 function updateDisplay() {
     document.getElementById('val-lv').innerText = state.lv;
