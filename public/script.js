@@ -57,20 +57,6 @@ async function triggerUnbox() {
     }
 }
 
-function openUpgradeModal() {
-    const curLv = state.terminalLevel;
-    const nextLv = Math.min(curLv + 1, 5); 
-    
-    document.getElementById('upg-current-lv').innerText = curLv;
-    document.getElementById('upg-next-lv').innerText = curLv >= 5 ? 'MAX' : nextLv;
-    
-    document.getElementById('rate-current-list').innerHTML = renderRatesHTML(curLv);
-    document.getElementById('rate-next-list').innerHTML = renderRatesHTML(nextLv);
-    
-    updateUpgradeProgress();
-    document.getElementById('upgrade-modal').style.display = 'flex';
-}
-
 function renderRatesHTML(lv) {
     const r = gachaRates[lv];
     return `
@@ -81,22 +67,57 @@ function renderRatesHTML(lv) {
     `;
 }
 
-function updateUpgradeProgress() {
-    document.getElementById('upg-exp-text').innerText = `${state.terminalExp} / ${state.terminalExpMax}`;
-    const pct = (state.terminalExp / state.terminalExpMax) * 100;
-    document.getElementById('upg-bar-fill').style.width = `${pct}%`;
+function openUpgradeModal() {
+    const curLv = state.terminalLevel;
+    const nextLv = Math.min(curLv + 1, 5); 
     
-    const cost = state.terminalLevel * 50; // 充能費用隨等級提升
-    document.getElementById('upg-cost').innerText = cost;
+    document.getElementById('upg-current-lv').innerText = curLv;
+    document.getElementById('upg-next-lv').innerText = curLv >= 5 ? 'MAX' : nextLv;
+    
+    document.getElementById('rate-current-list').innerHTML = renderRatesHTML(curLv);
+    
+    //🔥 判斷是否滿級，滿級時隱藏下一級機率並顯示提示
+    if (curLv >= 5) {
+        document.getElementById('rate-next-list').innerHTML = '<div style="color:#aaa; text-align:center; margin-top:10px;">已達最高等級</div>';
+    } else {
+        document.getElementById('rate-next-list').innerHTML = renderRatesHTML(nextLv);
+    }
+    
+    updateUpgradeProgress();
+    document.getElementById('upgrade-modal').style.display = 'flex';
+}
+
+function updateUpgradeProgress() {
+    //🔥 新增滿級判斷，改變介面顯示
+    if (state.terminalLevel >= 5) {
+        document.getElementById('upg-exp-text').innerText = 'MAX';
+        document.getElementById('upg-bar-fill').style.width = '100%';
+        
+        const btn = document.getElementById('btn-buy-exp');
+        btn.disabled = true;
+        btn.innerText = '已滿級';
+    } else {
+        document.getElementById('upg-exp-text').innerText = `${state.terminalExp} / ${state.terminalExpMax}`;
+        const pct = (state.terminalExp / state.terminalExpMax) * 100;
+        document.getElementById('upg-bar-fill').style.width = `${pct}%`;
+        
+        const cost = state.terminalLevel * 50; // 充能費用隨等級提升
+        document.getElementById('upg-cost').innerText = cost;
+        
+        const btn = document.getElementById('btn-buy-exp');
+        btn.disabled = false;
+        btn.innerHTML = `充能 (🪙 <span id="upg-cost">${cost}</span>)`;
+    }
 }
 
 function buyTerminalExp() {
-    const cost = state.terminalLevel * 50;
-    
-    if (state.terminalLevel >= 5 && state.terminalExp >= state.terminalExpMax) {
+    //🔥 如果已經滿級，直接返回，避免後續扣除金幣
+    if (state.terminalLevel >= 5) {
         return;
     }
 
+    const cost = state.terminalLevel * 50;
+    
     if (state.gold < cost) {
         return;
     }
@@ -107,31 +128,32 @@ function buyTerminalExp() {
     
     // 如果格滿了，觸發升級 (模擬耗時)
     if (state.terminalExp >= state.terminalExpMax) {
-        if (state.terminalLevel < 5) {
-            document.getElementById('btn-buy-exp').disabled = true;
-            document.getElementById('btn-buy-exp').innerText = "升級構建中...";
+        document.getElementById('btn-buy-exp').disabled = true;
+        document.getElementById('btn-buy-exp').innerText = "升級構建中...";
+        
+        // 模擬升級需要時間 (2秒)
+        setTimeout(() => {
+            state.terminalLevel += 1;
+            state.terminalExp = 0;
             
-            // 模擬升級需要時間 (2秒)
-            setTimeout(() => {
-                state.terminalLevel += 1;
-                state.terminalExp = 0;
+            //🔥 升級後判斷是否到達滿級，若未滿級才增加所需格數
+            if (state.terminalLevel < 5) {
                 state.terminalExpMax = state.terminalLevel * 5; // 升級所需格數增加 (5, 10, 15...)
-                
-                document.getElementById('btn-terminal-level').innerText = `Lv.${state.terminalLevel}`;
-                document.getElementById('btn-buy-exp').disabled = false;
-                
-                showToast(`升級成功！當前為 Lv.${state.terminalLevel}`);
-                updateUpgradeProgress();
-                openUpgradeModal(); // 刷新畫面
-                updateDisplay();
-            }, 2000);
-        } else {
-            state.terminalExp = state.terminalExpMax;
-        }
+            }
+            
+            document.getElementById('btn-terminal-level').innerText = state.terminalLevel >= 5 ? 'Lv.MAX' : `Lv.${state.terminalLevel}`;
+            document.getElementById('btn-buy-exp').disabled = false;
+            
+            showToast(`升級成功！當前為 Lv.${state.terminalLevel}`);
+            updateUpgradeProgress();
+            openUpgradeModal(); // 刷新畫面
+            updateDisplay();
+        }, 2000);
+    } else {
+        //🔥 確保沒升級時也會更新進度與畫面
+        updateUpgradeProgress();
+        updateDisplay();
     }
-    
-    updateUpgradeProgress();
-    updateDisplay();
 }
 
 function closeUpgradeModal() {
